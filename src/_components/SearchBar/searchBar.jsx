@@ -3,11 +3,25 @@ import SearchImage from '../../_assets/searchButton.jpeg';
 import { findAllMoviesApi } from '../../api/findAllMoviesApi';
 import { SearchBarContainer, SearchBarInput, SearchButton, SearchButtonImage } from './SearchBarStyles';
 
-export default function SearchBar() {
+export default function SearchBar({ onSearch, onLoading }) {
     const [query, setQuery] = useState('');
 
-    const handleSearch = () => {
-        findAllMoviesApi(query);
+    const handleSearch = async () => {
+        try {
+            onLoading(true);
+            const response = await findAllMoviesApi(query);
+            console.log('response', response);
+            if (response.Response === 'True') {
+                onSearch(response.Search);
+            } else {
+                onSearch([]);
+            }
+        } catch (error) {
+            console.log('영화 검색 중 에러 발생', error);
+            onSearch([]);
+        } finally {
+            onLoading(false);
+        }
     };
 
     return (
@@ -19,7 +33,7 @@ export default function SearchBar() {
             />
             <SearchButton onClick={handleSearch}>
                 <SearchButtonImage
-                    src={SearchImage} 
+                    src={SearchImage}
                     alt="Search"
                 />
             </SearchButton>
